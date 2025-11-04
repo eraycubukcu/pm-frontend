@@ -1,25 +1,41 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Link } from "react-router-dom"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
+import { useSignIn } from "@clerk/clerk-react";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const { signIn, isLoaded } = useSignIn();
+
+  async function handleGoogleSignIn() {
+    if (!isLoaded) return;
+    try {
+      await signIn.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/",
+        redirectUrlComplete: "/",
+      });
+    } catch (err) {
+      console.error("Google giriş hatası:", err);
+    }
+  }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -48,20 +64,27 @@ export function LoginForm({
                     href="#"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
-                    Şifreni mi Unuttun? 
+                    Şifreni mi Unuttun?
                   </a>
                 </div>
                 <Input id="password" type="password" required />
               </Field>
-              <Field>
-                <Button type="submit" variant="outline">Giriş Yap</Button>
-                <Button variant="outline" type="button">
+              <Field className="flex flex-col gap-2">
+                <Button type="submit" variant="outline">
+                  Giriş Yap
+                </Button>
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={handleGoogleSignIn}
+                >
                   Google ile giriş yap
                 </Button>
                 <FieldDescription className="text-center">
-                  Hesabın yok mu? 
-                  {/* <a href="#">Sign up</a> */}
-                  <Link to={"/signup"}>Kayıt Ol</Link>
+                  Hesabın yok mu?{" "}
+                  <Link to={"/signup"} className="underline">
+                    Kayıt Ol
+                  </Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
@@ -69,5 +92,5 @@ export function LoginForm({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

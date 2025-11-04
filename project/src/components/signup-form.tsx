@@ -14,8 +14,25 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
+import { useSignUp } from "@clerk/clerk-react";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+  const { signUp, isLoaded } = useSignUp();
+
+  // 🔹 Google ile kayıt olma fonksiyonu
+  async function handleGoogleSignUp() {
+    if (!isLoaded) return;
+    try {
+      await signUp.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/",
+        redirectUrlComplete: "/",
+      });
+    } catch (err) {
+      console.error("Google kayıt hatası:", err);
+    }
+  }
+
   return (
     <Card {...props}>
       <CardHeader>
@@ -31,6 +48,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <FieldLabel htmlFor="name">Ad Soyad</FieldLabel>
               <Input id="name" type="text" placeholder="John Doe" required />
             </Field>
+
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
               <Input
@@ -44,6 +62,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 başka kimseyle paylaşmayacağız.
               </FieldDescription>
             </Field>
+
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
               <Input id="password" type="password" required />
@@ -51,23 +70,30 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 En az 8 karakter uzunluğunda olmalıdır.
               </FieldDescription>
             </Field>
+
             <Field>
               <FieldLabel htmlFor="confirm-password">Şifreyi Onayla</FieldLabel>
               <Input id="confirm-password" type="password" required />
               <FieldDescription>Lütfen şifrenizi onaylayın.</FieldDescription>
             </Field>
+
             <FieldGroup>
-              <Field>
+              <Field className="flex flex-col gap-2">
                 <Button type="submit" variant="outline">
                   Hesap Oluştur
                 </Button>
-                <Button variant="outline" type="button">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={handleGoogleSignUp}
+                >
                   Google ile kayıt ol
                 </Button>
                 <FieldDescription className="px-6 text-center">
                   Hesabın var mı?
-                  {/* <a href="#">Sign in</a> */}
-                  <Link to={"/login"}> Giriş yap</Link>
+                  <Link to={"/login"} className="underline ml-1">
+                    Giriş yap
+                  </Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
